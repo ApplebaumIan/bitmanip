@@ -32,7 +32,14 @@ unsigned int get_high(weatherlog_t entry);
 unsigned int get_low(weatherlog_t entry);
 unsigned int get_precip(weatherlog_t entry);
 unsigned int get_wind(weatherlog_t entry);
-
+int binary_conversion(int num){
+  if (num == 0) {
+    return 0;
+  }
+else {
+  return(num % 2)+10 *binary_conversion(num/2);
+ }
+}
 int main(int argc, char **argv) {
   unsigned int i, j;
   int x, y;
@@ -50,65 +57,59 @@ int main(int argc, char **argv) {
   scanf("%d", &y);
 
   printf("%d + %d = %u\n",i ,j, add(i,j));
-  printf("%d - %d = %u\n",i,j, sub(i,j));
-  printf("%d * %d = %u\n",i,j, mul(i,j));
-
-  if (is_negative(x)==1)
-    printf("%d is negative\n", x);
-  else
-    printf("%d is non-negative\n", x);
-
-  if (has_odd(y)) {
-    printf("%x has an odd number of bits in its binary representation\n", y);
-  }
-  else {
-    printf("%x has an even number of bits in its binary representation\n", y);
-    printf("but %x has an odd number of bits in its binary representation\n", make_odd(y));
-  }
-///////////*************FINISHED*********************////////////////////////////////////
-  printf("The half-nybbles of %d (in hex 0x%x) are:", x, x);
-  print_half_nybbles(x);
-
-  printf("%x with reversed half-nybbles is %x\n", x, reverse_half_nybbles(x));
-  /***************************************************************************/
-  /*                Start of other shit I dont feel like doing               */
-  /***************************************************************************/
-  /* printf("Enter a year: ");
+  printf("%d - %d = %u\n",i,j, sub(i,j)); 
+  printf("%d * %d = %u\n",i,j, mul(i,j)); 
+  
+  if (is_negative(x)==1) 
+    printf("%d is negative\n", x); 
+  else 
+    printf("%d is non-negative\n", x); 
+  
+  if (has_odd(y)) { 
+    printf("%x has an odd number of bits in its binary representation\n", y); 
+  } 
+  else { 
+    printf("%x has an even number of bits in its binary representation\n", y); 
+    printf("but %x has an odd number of bits in its binary representation\n", make_odd(y)); 
+  } 
+  ///////////\*************FINISHED*********************\//////////////////////////////////// 
+  printf("The half-nybbles of %d (in hex 0x%x) are:", x, x); 
+  print_half_nybbles(x); 
+  
+  printf("%x with reversed half-nybbles is %x\n", x, reverse_half_nybbles(x)); 
+  printf("Enter a year: ");
   scanf("%u", &year);
-
+  
   printf("Enter a month as an integer (1-12): ");
   scanf("%u", &month);
-
+  
   printf("Enter a day as an integer (1-31): ");
   scanf("%u", &day);
-
+  
   printf("Enter a zip code as an integer (0-99999): ");
   scanf("%u", &zip);
-
+  
   printf("Enter a temperature as an integer: ");
   scanf("%u", &high_temp);
-
+  
   printf("Enter another temperature as an integer: ");
   scanf("%u", &low_temp);
-
-
+  
+  
   printf("Enter rainfall amount as an integer (mm): ");
   scanf("%u", &precip);
-
+  
   printf("Enter a as an integer (km/hr): ");
   scanf("%u", &avg_wind_speed);
-
-
+  
+  
   log_entry=pack_log_entry(year, month, day, zip, high_temp, low_temp,
 			   precip, avg_wind_speed);
   printf("You entered: %u/%u/%u for zip %5d: high %d F, low %d F, precip %d mm, wind speed %d km/hr\n",
 	 get_day(log_entry), get_month(log_entry), get_year(log_entry),
 	 get_zip(log_entry), get_high(log_entry), get_low(log_entry),
 	 get_precip(log_entry), get_wind(log_entry));
-  */
-  /***************************************************************************/
-  /*                    END OF SHIT I DONT FEEL LIKE DOING                   */
-  /***************************************************************************/
+  
   return 0;
 }
 /******************************************************/
@@ -120,14 +121,34 @@ unsigned int add(unsigned int i, unsigned int j) {
   if (j==0) {
     return i;
   }
+  //Binary debugger. 
+   /* printf("%s%d\n","i= ",i);  */
+   /* printf("%s%d\n","j= ",j);  */
+   /* printf("%s%d\n","i in BINARY= ",binary_conversion(i));  */
+   /* printf("%s%d\n","j in BINARY= ",binary_conversion(j));  */
+  //End Binary debugger. 
   sum = i^j;
+  
+  //  printf("%s%d\n","SUM= ",binary_conversion(sum));
   carry = (i&j)<<1;
+  //printf("%s%d\n","CARRY= ",binary_conversion(carry));
   return add(sum,carry);
   //  return i + j;
 }
 
 unsigned int sub(unsigned int i, unsigned int j) {
-  /* Similar 7 lines, although there is a shorter way */
+  /*Similar 7 lines, although there is a shorter way */
+   if(i<j){ //So I thought it would be necessary to have a catch
+     while (i != 0) { //for negative numbers, but affter I used programming calculaters
+       int borrow = (~j) & i; //I realized it just does the same stuff! so it's unnessarry to add. 
+       j=i^j; //if im wrong this stage can be re added but it changes the dynamic of the math because 
+       i= borrow <<1; //subtraction is not communicative!!!!
+     } 
+     return j; 
+     //  return i - j; 
+   }    
+  //END of unnecessary catch statement.
+  //START of actual subtraction while method
   while (j != 0) {
     int borrow = (~i) & j;
     i=i^j;
@@ -140,93 +161,127 @@ unsigned int sub(unsigned int i, unsigned int j) {
 unsigned int mul(unsigned int i, unsigned int j) {
   /* can be done in a total of 8 lines including one to declare unsigned ints */
   /* two for a for loop, and one for the return */
-  if (j==0) {
+  if (j==0)
     return 0;
-  }
-if (j>0) {
-  return (add(i,mul(i,sub(j,1))));
- }
-if (j<0) {
-  return -mul(i,-j);
- }
-//  return i * j;
+ 
+ if (j>0)
+    return (add(i,mul(i,sub(j,1))));
+
+  if (j<0)
+    return -mul(i,-j);
+  //  return i * j;
 }
 
 /* prints the half-nybbles (i.e. 2 bit values) of x,
    one half-nybble at a time */
 void print_half_nybbles(unsigned int x) {
+    unsigned int i = 0, t = 0x3;
+    while(t != 0) {
+        printf("%u", (x & t) >> i);
+        t <<= 2;
+        i = add(i,2);
+    }
+    printf("\n");
 }
 
 /* returns the reverse of the half-nybbles of i */
 unsigned int reverse_half_nybbles(unsigned int i) {
-  return 0u;
+    unsigned r = 0, s = 0, t = 0x3, j = 0;
+    while(j < mul(sizeof(i),8)) {
+        r = (i >> j) & t;
+        s<<=2;
+        s = add(s,r);
+        j = add(j,2);
+    }
+    return s;
 }
 
 /* returns 1 if x < 0
-    returns 0 otherwise
-
-    Do not use the <, > operators. */
+ returns 0 otherwise
+ 
+ Do not use the <, > operators. */
 int is_negative(int x) {
-  if (x && !(x&(1U<<(mul(sizeof(int),sub(CHAR_BIT,1)))))) {
-    return 0;
- }
-  return 1;
+    return (x & 0x80000000) != 0;
 }
 
 /* returns 1 if x's binary representation
-   has an odd number of 1s or 0 otherwise */
+ has an odd number of 1s or 0 otherwise */
 int has_odd(unsigned int x) {
-  if (x & 1) {
-    return 1;
-  }
-  return 0;
+    unsigned int count = 0, i = 0, j = 1;
+    while(i < mul(sizeof(x),8)) {
+        if((x & j) == j)
+            count = add(count,1);
+        i = add(i,1);
+        j = mul(j,2);
+    }
+    return (count & 1) == 1;
 }
 
 /* If x's binary representation contains an odd number of 1s, x is
-    returned. Otherwise, it returns a copy of x, but with its most significant
-    bit modified so that there is an odd number of 1s. */
+ returned. Otherwise, it returns a copy of x, but with its most significant
+ bit modified so that there is an odd number of 1s. */
 unsigned int make_odd(unsigned int x) {
-  return 0;
+    if(!has_odd(x))
+        x ^= 0x80000000;
+    return x;
 }
 
 
 /* combines all of the arguments into a single weatherlog_t entry as described below */
 weatherlog_t pack_log_entry(unsigned int year, unsigned int month, unsigned int day,
-			    unsigned int zip, int high_temp, int low_temp,
-			    unsigned int precip, unsigned int avg_wind_speed) {
-  return 0;
+                            unsigned int zip, int high_temp, int low_temp,
+                            unsigned int precip, unsigned int avg_wind_speed) {
+    weatherlog_t log_entry = 0;
+
+    log_entry ^= sub(year,2000);
+    log_entry <<= 4;
+    log_entry ^= month;
+    log_entry <<= 5;
+    log_entry ^= day;
+    log_entry <<= 16;
+    log_entry ^= zip;
+    log_entry <<= 8;
+    log_entry ^= high_temp;
+    log_entry <<= 8;
+    log_entry ^= low_temp;
+    log_entry <<= 10;
+    log_entry ^= precip;
+    log_entry <<= 7;
+    log_entry ^= avg_wind_speed;
+
+    return log_entry;
 }
 
 unsigned int get_year(weatherlog_t entry) {
-  return 0;
+    return entry >> 58;
 }
 
 unsigned int get_month(weatherlog_t entry) {
-  return 0;
+    return 0xf & (entry >> 54);
 }
 
 unsigned int get_day(weatherlog_t entry) {
-  return 0;
+    return 0x1f & (entry >> 49);
 }
 
 unsigned int get_zip(weatherlog_t entry) {
-  return 0;
+    return 0xffff & (entry >> 33);
 }
 
 unsigned int get_high(weatherlog_t entry){
-  return 0;
+    return 0xff & (entry >> 25);
 }
 
 unsigned int get_low(weatherlog_t entry) {
-  return 0;
+    return 0xff & (entry >> 17);
 }
 
 unsigned int get_precip(weatherlog_t entry) {
-  return 0;
+    return 0x3ff & (entry >> 7);
 }
 
 unsigned int get_wind(weatherlog_t entry) {
-  return 0;
+    return 0x7f & entry;
 }
 
 
